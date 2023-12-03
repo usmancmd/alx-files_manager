@@ -1,2 +1,1 @@
-## alx-files_manager 
-Alx SE
+# alx-files_manager
