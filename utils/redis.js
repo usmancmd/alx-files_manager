@@ -1,21 +1,21 @@
-import { createClient } from "redis";
+import { createClient } from 'redis';
 
 class RedisClient {
-  constructor() {
+  constructor () {
     this.client = createClient();
     this.connected = true;
 
-    this.client.on("error", (err) => {
+    this.client.on('error', (err) => {
       console.error(err);
       this.connected = false;
     });
   }
 
-  isAlive() {
+  isAlive () {
     return this.connected;
   }
 
-  async get(key) {
+  async get (key) {
     return new Promise((resolve, reject) => {
       this.client.get(key, (err, value) => {
         if (err) {
@@ -27,9 +27,9 @@ class RedisClient {
     });
   }
 
-  async set(key, value, duration) {
+  async set (key, value, duration) {
     return new Promise((resolve, reject) => {
-      this.client.set(key, value, "EX", duration, (err) => {
+      this.client.set(key, value, 'EX', duration, (err) => {
         if (err) {
           reject(err);
         } else {
@@ -39,7 +39,7 @@ class RedisClient {
     });
   }
 
-  async del(key) {
+  async del (key) {
     return new Promise((resolve, reject) => {
       this.client.del(key, (err, count) => {
         if (err) {
