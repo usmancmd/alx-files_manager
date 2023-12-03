@@ -1,16 +1,23 @@
+import { resolve } from "mongodb/lib/core/topologies/read_preference";
+import { reset } from "nodemon";
 import { createClient } from "redis";
 
 class RedisClient {
   constructor() {
-    this.client = redis.createClient();
+    this.client = createClient();
+    this.connected = true;
+    this.client.on("connect", () => {
+      this.connected = true;
+    });
 
     this.client.on("error", (err) => {
       console.error(err);
+      this.connected = false;
     });
   }
 
   isAlive() {
-    return this.client.connected;
+    return this.connected;
   }
 
   async get(key) {
