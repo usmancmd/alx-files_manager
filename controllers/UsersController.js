@@ -3,7 +3,7 @@ import dbClient from '../utils/db';
 
 class UsersController {
   static async postNew(req, res) {
-    const { email, password } = req;
+    const { email, password } = req.body;
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
     }
@@ -31,7 +31,7 @@ class UsersController {
     };
 
     const result = await dbClient.client
-      .db(this.DB_DATABASE)
+      .db(dbClient.DB_DATABASE)
       .collection('users')
       .insertOne(newUser);
 
