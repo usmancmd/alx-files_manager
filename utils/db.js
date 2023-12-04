@@ -12,7 +12,7 @@ class DBClient {
       DB_DATABASE = 'files_manager',
     } = process.env;
     this.client = new MongoClient(`mongodb://${DB_HOST}:${DB_PORT}/${DB_DATABASE}`,
-      { useNewUrlParser: true, useUnifiedTopology: true });
+      { useUnifiedTopology: true });
     this.connect();
   }
 
