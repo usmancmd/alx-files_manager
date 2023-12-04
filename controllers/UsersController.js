@@ -41,6 +41,35 @@ class UsersController {
       email: newUser.email,
     });
   }
+
+  static async getMe(req, res) {
+    const { 'x-token': token } = req.headers;
+
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userId = await dbClient.client.get(`auth_${token}`);
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const user = await dbClient.client
+      .db(dbClient.database)
+      .collection('users')
+      .findOne({ _id: dbClient.ObjectID(userId) });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Return the user object with only the email and id
+    return res.status(200).json({
+      id: user._id,
+      email: user.email,
+    });
+  }
 }
 
 export default UsersController;
