@@ -4,11 +4,11 @@ import fs from 'fs/promises';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-const validTypes = {
-  folder: 'folder',
-  file: 'file',
-  image: 'image',
-}
+// const validTypes = {
+//   folder: 'folder',
+//   file: 'file',
+//   image: 'image',
+// }
 
 class FilesController {
   static async postUpload(req, res) {
@@ -31,7 +31,7 @@ class FilesController {
       .findOne({ _id: objectId });
 
     const {
-      name, type, parentId, isPublic = isPublic || false, data,
+      name, type, parentId, isPublic = false, data,
     } = req.body;
     // const { name } = req.body;
     // const { type } = req.body;
@@ -124,7 +124,7 @@ class FilesController {
         });
       });
     }
-      return '';
+    return '';
   }
 }
 
