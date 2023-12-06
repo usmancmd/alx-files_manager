@@ -30,6 +30,10 @@ class FilesController {
       .collection('users')
       .findOne({ _id: objectId });
 
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const {
       name, type, parentId, isPublic = false, data,
     } = req.body;
@@ -43,13 +47,11 @@ class FilesController {
       return res.status(400).json({ error: 'Missing name' });
     }
 
-    if (!type) {
-      console.log('f1111111111');
+    if (!type || !['folder', 'file', 'image'].includes(type)) {
       return res.status(400).json({ error: 'Missing type' });
     }
 
     if (type !== 'folder' && !data) {
-      console.log('f22222222222');
       return res.status(400).json({ error: 'Missing data' });
     }
 
@@ -125,6 +127,39 @@ class FilesController {
       });
     }
     return '';
+  }
+
+  static async getShow(req, res) {
+    const token = req.header('X-Token');
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const objectId = new ObjectID(userId);
+    const user = await dbClient.client
+      .db(dbClient.database)
+      .collection('users')
+      .findOne({ _id: objectId });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.client
+      .db(dbClient.database)
+      .collection('files')
+      .findOne({ _id: objectId, userId: user._id });
+
+    if (!file) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    return file;
   }
 }
 
