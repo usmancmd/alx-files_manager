@@ -5,14 +5,14 @@ import redisClient from '../utils/redis';
 
 class AuthController {
   static async getConnect(req, res) {
-    const authHeader = req.headers.Authorization;
+    const authHeader = req.header('Authorization');
 
     if (!authHeader || !authHeader.startsWith('Basic ')) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const credentialsBase64 = authHeader.split(' ')[1];
-    console.log('credentialsBase64', credentialsBase64);
+    // console.log('credentialsBase64', credentialsBase64);
     const credentials = Buffer.from(credentialsBase64, 'base64').toString('utf-8');
     const [email, password] = credentials.split(':');
 
@@ -40,20 +40,19 @@ class AuthController {
   }
 
   static async getDisconnect(req, res) {
-    const { 'x-token': token } = req.headers;
+    const token = req.header('X-Token');
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const key = `auth_${token}`;
-    const userId = await redisClient.client.get(key);
+    const userId = await redisClient.get(key);
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     // Delete the token in Redis
-    await redisClient.client.del(key);
-
-    return res.status(204).send();
+    await redisClient.del(key);
+    return res.status(204).json({});
   }
 }
 
