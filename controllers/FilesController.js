@@ -161,6 +161,45 @@ class FilesController {
     }
     return file;
   }
+
+  static async getFile(req, res) {
+    const { id } = req.params;
+    const token = req.header('X-Token');
+
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const file = await dbClient.getFileById(id);
+
+    if (!file) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (!file.isPublic && (user._id !== file.userId.toString())) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: "A folder doesn't have content" });
+    }
+
+    const filePath = file.localPath;
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const mimeType = mime.lookup(file.name) || 'application/octet-stream';
+
+    res.setHeader('Content-Type', mimeType);
+    return res.status(200).send(fileContent);
+  }
 }
 
 export default FilesController;

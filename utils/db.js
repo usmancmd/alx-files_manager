@@ -39,6 +39,18 @@ class DBClient {
     const numOfFiles = await db.collection('files').countDocuments();
     return numOfFiles;
   }
+
+  async getFileById() {
+    try {
+      const db = await this.client.db(dbClient.DB_DATABASE);
+      const files = await db.collection('files');
+      const file = await files.findOne({ _id: ObjectId(id) });
+      return file;
+    } catch (error) {
+      console.error('Error retrieving file by ID:', error);
+      throw error;
+    }
+  }
 }
 
 const dbClient = new DBClient();
